@@ -1,0 +1,298 @@
+delimiter //
+create procedure dac1()
+begin 
+select * from employees;
+end; 
+//
+delimiter ;
+
+
+delimiter //
+create procedure dac1()
+begin select employee_id, concat(first_name,' ',last_name) as name from employees;
+end//
+delimiter ;
+
+delimiter //
+drop procedure if exists dac2 //
+create procedure dac2()
+begin 
+declare x int;
+select count(*) into x from employees;
+select x;
+end //
+delimiter ;
+
+delimiter //
+drop procedure if exists dac3 //
+create procedure dac3()
+begin
+declare x int;
+declare y int;
+declare z int;
+select count(*), max(salary), avg(salary) into x,y,z from employees;
+select x as Total_employees, y as max_salary, z as avg_salary;
+end //
+delimiter ;
+  
+delimiter //
+drop procedure if exists dac4 //
+create procedure dac4(x int)
+begin
+select concat(first_name,' ',last_name) as name, salary from employees where employee_id=x;
+end //
+delimiter ;
+
+delimiter //
+drop procedure if exists dac5 //
+create procedure dac5(x int , out y int)
+begin 
+select max(salary) into y from employees 
+where department_id = x;
+end //
+delimiter ;
+
+delimiter //
+drop procedure if exists dac6 //
+create procedure dac6(x int, inout y int)
+begin
+set y = y+x;
+end //
+delimiter ;
+
+
+
+delimiter // 
+drop procedure if exist dac7 //
+create procedure dac7(x int , out level varchar (100))
+begin 
+declare sal int;
+select salary into sal from employees where employee_id=x;
+if sal>15000 then
+set level = 'highly paid';
+elseif sal>10000 and sal<15000 then 
+set level = 'benchmark employee';
+else 
+set level ='low pay grade';
+end if;
+end//
+delimiter ;
+
+delimiter //
+drop procedure if exists dac7 //
+create procedure dac7(x int, out level varchar(100))
+begin
+declare sal int;
+select salary into sal from employees where employee_id = x;
+if sal >15000 then
+set level ='nikhil';
+else 
+set level ='shinde';
+end if;
+end //
+delimiter ;  
+
+case is use to compare multiple value 
+
+case 
+when condition then select 
+else select
+end case;
+
+   
+delimiter //
+drop procedure if exists dac8//
+create procedure dac8(x int)
+begine 
+case x
+when 1 then select 'one';
+else select 'out of boundry'
+end case;
+
+
+delimiter //
+drop procedure if exists dac9//
+create procedure dac9(x int, out level varchar(100)) 
+begin
+declare sal int;
+select salary into sal from employees where employee_id=x;
+case
+when sal> 15000 then select 'highly paid';
+when sal >10000 and sal <15000 then select 'benchmark employee';
+else select 'low pay garde';
+end case;
+end//
+
+delimiter ;
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------
+LOOOPPPPSSSSSSSSSSSS.
+
+ delimiter //
+ drop procedure if exists dac10 //
+ create procedure dac10(x int)
+	begin
+		declare fnum int default 0;
+		declare snum int default 1;
+		declare tnum int;
+		declare fseries varchar(200);
+		set fseries = concat(fnum,' ,',snum);
+		while x>2 do
+		set tnum = fnum+snum;
+		set fnum = snum;
+		set snum = tnum;
+		set fseries = concat(fseries,' ,', tnum);
+		set x= x-1;
+	end while;
+	select fseries;
+	end //  
+	delimiter ;
+	
+	delimiter //
+	drop procedure if exists 
+	craete procedure
+	begin
+	while conditin do 
+	brk point
+	end while;
+	end//
+	delimiter ;
+	
+	
+	delimiter //
+	drop procedure if exists dac10_1 //
+	create procedure dac10_1()
+	begin
+	declare bcount int;
+	declare eid int;
+	declare fname varchar(50);
+	declare sal int;
+	declare emp_cursor cursor
+	for select employee_id,first_name,salary from employees;
+	select count(*) into bcount from employees;
+	open emp_cursor;
+	while bcount>0 do
+	fetch emp_cursor into eid,fname,sal;
+	select eid,fname,sal as 'old_salary',1.5*sal as 'new_salary';
+	set bcount = bcount-1;
+	end while;
+	end//
+	delimiter ;
+	-**-----*--------------------------------------------------****---------------
+				WRONG
+	
+	delimiter // 
+	drop procedure if exists dac10 //
+	create procedure dac10()
+	begin
+	declare bcount int;
+	declare sal int;
+	declare eid int;
+	declare fname varchar(20);
+
+
+	declare emp_cur cursor
+	for select employee_id,first_name,salary from employees;
+
+
+	select count(*) into bcount from employees;
+	create temporary table empsal(id int, name varchar(20), old_sal int, new_salary int);
+	open emp_cur;
+	cur_itrate : loop
+	if bcount <=0 then 
+	leave cur_itrate;
+	end if;
+	fetch emp_cur into eid,fname,sal;
+	insert into empsal values(eid,fname,sal,1.5*sal);
+	set bcount=bcount-1;
+	end loop cur_itrate;
+	end //
+	delimiter ;
+	
+	
+	-----------------------------------------------*************************-------------------------------------
+	CREATE DEFINER=`root`@`localhost` PROCEDURE `dac10`()
+begin
+	declare bcount int;
+	declare sal int;
+	declare eid int;
+	declare fname varchar(20);
+	declare emp_cur cursor
+	for select employee_id,first_name,salary from employees;
+	select count(*) into bcount from employees;
+    create temporary table empsal(id int, name varchar(20), old_sal int, new_salary int);
+	open emp_cur;
+	cur_itrate : loop
+	if bcount <=0 then 
+	leave cur_itrate;
+	end if;
+	fetch emp_cur into eid,fname,sal;
+	insert into empsal values(eid,fname,sal,1.5*sal);
+	set bcount=bcount-1;
+	end loop cur_itrate;
+    close emp_cur;
+    select * from empsal;
+    drop table empsal;
+	end
+	
+	
+	-------------------------------------------------------
+	delimiter //
+	drop procedure if exists dac12 //
+	
+	create procedure dac12()
+	begin
+	declare eid int;
+	declare name varchar(20);
+	declare sal int;
+	declare v_finish int default 0;
+	declare emp_cur cursor
+	for select employee_id,first_name,salary from employees;
+	declare exit handler for not found set v_finish = 1;
+	create temporary table empsal(id int, name varchar(20), old_sal int, new_salary int);
+	open emp_cur;
+	l_level : loop
+	if  v_finish = 1 then
+	leave l_level;
+    end if;
+	fetch emp_cur into eid,name,sal;
+	insert into empsal values(eid,name,sal,1.5*sal);
+	end loop l_level;
+	close emp_cur;
+	select * from empsal;
+	drop table empsal;
+	end //
+	delimiter ;
+	
+	
+	
+	
+	delimiter //
+	drop procedure if exists dac12 //
+	
+	create procedure dac12()
+	begin
+	declare eid int;
+	declare name varchar(20);
+	declare sal int;
+	declare v_finish int default 0;
+	declare emp_cur cursor
+	for select employee_id,first_name,salary from employees;
+	declare continue handler for not found set v_finish = 1;
+	create temporary table empsal(id int, name varchar(20), old_sal int, new_salary int);
+	open emp_cur;
+	l_level : loop
+	fetch emp_cur into eid,name,sal;
+	
+	if  v_finish = 1 then
+	leave l_level;
+    end if;
+	insert into empsal values(eid,name,sal,1.5*sal);
+	end loop l_level;
+	close emp_cur;
+	select * from empsal;
+	drop table empsal;
+	end //
+	delimiter ;
